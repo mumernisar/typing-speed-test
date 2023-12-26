@@ -1,0 +1,10 @@
+L,83,183
+Kira,75,175
+UmerNisar,48,147
+Monkey D. Luffy,45,145
+UmerNisar,45,145
+guest,43,143
+1,40,140
+Zoro,28,128
+UmerNisar,26,126
+a,11,111
