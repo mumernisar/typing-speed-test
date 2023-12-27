@@ -5,32 +5,48 @@ import click
 import winsound
 # Function to generate a random sentence from a file (text.txt)
 
-def generate_random_sentence():
+def generate_random_sentence(mode):
+
     text_file = open("text.txt", "r")
     lines = text_file.readlines()
+    if mode == '1':
+        return random.choice(lines).replace("\n" , "") + random.choice(lines)
     return random.choice(lines)
+    
 
-def getSentence(sentence):
-    click.echo("Go... : ", nl = False)
+def formatText(s , type):
+    if(type == 'red'):
+        return ("\033[91m " + s + " \033[00m")
+    if(type == 'green'):
+        return ("\033[92m" + s + "\033[00m")
+    if(type == 'bold'):
+        return ('\033[1m' + s + '\033[0m')
+    return  s 
+
+def getInput(sentence , start_time , mode):
+
+    print("\r                           ",end="")
+    click.echo("\rGo... : ", nl = False)
     finished = False
     mistakes = 0
     corrects = 0
     # String initiation for storing characters in after typing of each character (st)
+    result = ""
     st = ""
     # Word count showing current iteration of word
     word = 0
+    
     # While loop for as long as length of user typed string is less the string to be typed ( Replace is used for removing red colours from string)
     while len(sentence) > (len(st.replace("\033[91m","").replace("\033[00m" , ""))):
-
-        if finished: 
-            break
+        if finished:  break
+        if(mode == "1" and time.time() - start_time >= 60): break
         # Get char gets a character as input
         c = click.getchar(echo=False)
         # "\x08" is the code for backspace key
         if(c == "\x08"):
             # Dont include the last character
             lastCharacters = st[-5:]
-
+            lengthOfStr = len(st.replace("\033[91m","").replace("\033[00m" , "")) 
             if(lastCharacters == "\033[00m"):
                 charsToExculde = 5 + 5 + 1
                 st = st[:(len(st) - charsToExculde)]
@@ -39,32 +55,42 @@ def getSentence(sentence):
                 st = st[:len(st) - 1]
                 corrects = corrects - 1
             word = word - 1
-            click.echo(("\r"+"        " + ( "  " * len(st)) ), nl=False)
+
+            # click.echo(("\r"+"        " + ( " " * lengthOfStr) ), nl=False)
+            click.clear()
+            
+            print( f" \n Type the sentence given in BOLD writing below: \n\n" + (5 * " ") +"\"" + formatText(sentence , 'bold'))
+            print()
             click.echo("\r"+"Go... : " + st , nl=False)
 
             # Enter key produced "\r" code
         elif(c == "\r"):
             finished = True
 
-# repr() changes a character to raw form like for a it will be 'a' and for any special keys it will be a code hence only alphabets will pass
+# repr() changes a character to raw form like for (a) it will be ('a') and for any special keys it will be a code with len > 3
+#  hence only alphabets will pass
         elif(len(repr(c)) == 3):
             # c = c[-1]
             withoutFormattingS = st.replace("\033[91m","").replace("\033[00m" , "")
             withoutFormattingS = withoutFormattingS + c
-            if(st != ""  and withoutFormattingS[word] != sentence[word]):
-                winsound.Beep(2500,50)
-                st = st +("\033[91m" + c + "\033[00m")
+            if(withoutFormattingS[word] != sentence[word]):
+                winsound.Beep(2000,30)
+                st = st + ("\033[91m" + c + "\033[00m")
                 mistakes += 1
             else: 
                 st = st + c
                 corrects = corrects + 1
-
+            click.clear()
+            print( f" \n Type the sentence given in BOLD writing below: \n\n" + (5 * " ") +"\"" + formatText(sentence , 'bold'))
+            print()
             click.echo("\r"+"Go... : " +st , nl=False)
             word = word + 1
             
             # print(st , end="")
         
-    return st , corrects
+    withoutFormattingS = st.replace("\033[91m","").replace("\033[00m" , "")
+
+    return withoutFormattingS , corrects
 
 # Function to update leader if user choses to
 def update_leaderboard(w_p_min , accuracy):
@@ -85,8 +111,8 @@ def update_leaderboard(w_p_min , accuracy):
     if minScore >= userScore :
         return "",changedUserId
     
-    name = input("Enter your username: (Max 16 characters)")
-    while len(name) > 16: name = input("Enter your username: (Max 16 characters)")
+    name = input("Enter your username  (Max 16 characters): ")
+    while len(name) > 16: name = input("Enter your username  (Max 16 characters): ")
 
     if name == "" : name = "guest"
 
@@ -110,20 +136,17 @@ def update_leaderboard(w_p_min , accuracy):
     return lines , changedUserId
 
 # Function to calculate typing speed in WPM
-def calculate_wpm(time_taken, sentence_length):
+def calculate_wpm(time_taken, sentence):
+    print(sentence , "Sentenced to Death!")
+    sentence_length = len(sentence)
     # WPM in case of time less than 1 min
     # in that case time in second will be checked what multiple of a minute it is 
     # then the sentence length will be multiplied by the same multiple to calculate in 1 complete min
-    if(time_taken <= 60):
-        multiple = 1
-        multiple = 60/time_taken
-        time_taken *= multiple
-        sentence_length *= multiple
-        words_per_min = (sentence_length / 5 )
-    else:
-        multiple = time_taken / 60
-        words_per_min= ((sentence_length * 1) / multiple)/5
-    return words_per_min
+    time_in_mins = time_taken / 60
+    words = sentence_length / 5
+    print(words, time_taken ,time_in_mins , words/time_in_mins)
+
+    return words / time_in_mins
 
 
 # Function to print leaderboard in a tabular form
@@ -134,9 +157,9 @@ def print_leaderboard(leaderboard,userI):
 
     for i in range(len(lines)):
         if(userI == i + 1):
-            s = f"\033[92m    {i + 1: 4d}  |    {lines[i].split(",")[0]: <20}    |     {lines[i].split(",")[1]: <20}    |     {(int(lines[i].split(",")[2])-int(lines[i].split(",")[1])): <20} \033[00m"
-            print(s)
-            print("-" * ( len(s) - 20))
+            s = f"    {i + 1: 4d}  |    {lines[i].split(",")[0]: <20}    |     {lines[i].split(",")[1]: <20}    |     {(int(lines[i].split(",")[2])-int(lines[i].split(",")[1])): <20} "
+            print(formatText(s , 'green'))
+            print("-" * ( len(s) -10))
             continue
         s = f"    {i + 1: 4d}  |    {lines[i].split(",")[0]: <20}    |     {(lines[i].split(",")[1]): <20}    |     {(int(lines[i].split(",")[2])-int(lines[i].split(",")[1])): <20} "
         print(s)
@@ -150,12 +173,12 @@ def start_typing_test():
     print(" " * 10 , "____/ /__  /_/ /  __/  __/ /_/ /     _  /   /  __/(__  )/ /_  ")
     print(" " * 10 , "/____/ _  .___/\\___/\\___/\\__,_/      /_/    \\___//____/ \\__/  ")
     print(" " * 10 , "        /_/                                                   ")
+    mode = input("Select mode: \n 1. One minute Rush \n 2. Speed Test \n Choice: ")
+    while mode != "1" and mode != "2": mode = input("Select mode: \n 1. One minute Rush \n 2. Speed Test \n Choice: ")
+    click.clear()
 
-    start_time = time.time()
-    sentence = generate_random_sentence()
-    input("Press Enter when you are ready..! ")
-
-    print( f" \n Type the sentence given in BOLD writing below: \n\n" + (5 * " ") +"\"" + '\033[1m' + f" {sentence} " +"\"" + '\033[0m')
+    sentence = generate_random_sentence(mode)
+    print( f" \n Type the sentence given in BOLD writing below: \n\n" + (5 * " ") +"\"" + formatText(sentence , 'bold'))
     print()
 
     # While loop to give the user time (n seconds) to get ready for the test
@@ -165,16 +188,15 @@ def start_typing_test():
         time.sleep(1)
         remainingTime = remainingTime - 1
         print(f" \rBegin in {remainingTime} seconds ⏰" , end="" )
-    print("\n")
+    start_time = time.time()
 
-    input_text , correctCount = getSentence(sentence)
+    input_text , correctCount = getInput(sentence , start_time , mode)
 
     end_time = time.time()
     time_taken = end_time - start_time
 
-    wpm = calculate_wpm(time_taken, len(input_text))
-
-    print(f"\nYou took {time_taken:.2f} seconds to type the sentence, achieving a speed of {wpm:.2f} WPM.")
+    wpm = calculate_wpm(time_taken, input_text)
+    print(f"\nYou took {round(time_taken)} seconds to type the sentence, achieving a speed of \033[92m {round(wpm)} \033[00m WPM.")
 
     accuracy = ((correctCount)/len(input_text)) * 100
     print(f"Your accuracy is {accuracy: .2f}")
@@ -185,7 +207,7 @@ def start_typing_test():
 
     if(lb  != "2"):        
         updated , userI = update_leaderboard(wpm , round(accuracy))
-        if( userI == 99 ): print("\033[91m Alas...! You did not make it to the leaderboard this time.!! \033[00m")
+        if( userI == 99 ): print(formatText("Alas...! You did not make it to the leaderboard this time.!!" , 'red')) 
         else:
             print_leaderboard(updated , userI )
 
@@ -195,3 +217,4 @@ start_typing_test()
 
 # text.txt file contains random sentences of which 1 is picked at random
 # leaderboard contains usernames with wpm and (wpm + accuracy) in the form (user,wpm,score) repectively
+
