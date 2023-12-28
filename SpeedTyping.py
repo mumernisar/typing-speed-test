@@ -2,7 +2,6 @@ import random
 import time
 # click is an external library used for getting a single character input at a time
 import click
-import winsound
 # Function to generate a random sentence from a file (text.txt)
 
 def generate_random_sentence(mode):
