@@ -32,11 +32,12 @@ def printStr_Helper(st):
             click.echo(st[start:i-7], nl=False)
             click.echo(click.style(st[i:i+1] , bg='red'), nl=False)
             start = i+1+7
-            
+
     else:
             click.echo("\rGo... : " + st , nl = False)
 
-def getInput(sentence , start_time , mode):
+def getInput(sentence , mode):
+
     print("\r                           ",end="")
     click.echo("\rGo... : ", nl = False)
     finished = False
@@ -47,13 +48,15 @@ def getInput(sentence , start_time , mode):
     # Word count showing current iteration of word
     word = 0
     time_started = False
+    # Fake time start to initialize variable and pass first loop iteration
+    start_time = time.time()
     # While loop for as long as length of user typed string is less the string to be typed ( Replace is used for removing red colours from string)
     while len(sentence) > (len(st)):
         if finished:  break
         if(mode == "1" and time.time() - start_time >= 60): break
         # Get char gets a character as input
         c = click.getchar()
-        if(not time_started): 
+        if(not time_started):
             start_time = time.time()
             time_started = True
         # "\x08" is the code for backspace key
@@ -75,7 +78,7 @@ def getInput(sentence , start_time , mode):
             print()
             printStr_Helper(st )
         # Enter key produced "\r" code
-        elif(c == "\r" and corrects > 60):
+        elif(c == "\r" ):
             finished = True
 # repr() changes a character to raw form like for (a) it will be ('a') and for any special keys it will be a code with len > 3
 #  hence only alphabets will pass
@@ -83,16 +86,16 @@ def getInput(sentence , start_time , mode):
             withoutFormattingS = st.replace("^^red^^","")
             withoutFormattingS = withoutFormattingS + c
             print()
-            
+
             if(withoutFormattingS[word] != sentence[word]):
                 st = st + ("^^red^^" + c + "^^red^^")
                 mistakes += 1
                 click.clear()
-                
+
             else:
                 st = st + c
                 corrects = corrects + 1
-                
+
             click.clear()
             click.echo(f"\n {" " * 80} Time : {round(time.time()-start_time)}\n Type the sentence given in BOLD writing below: \n\n" + (5 * " ") , nl=False )
             click.echo(click.style(sentence , bold= True))
@@ -101,7 +104,7 @@ def getInput(sentence , start_time , mode):
             word = word + 1
 
     withoutFormattingS = st.replace("^^red^^","")
-    return withoutFormattingS , corrects
+    return withoutFormattingS , corrects ,  round(time.time() - start_time )
 
 # Function to update leader if user choses to
 def update_leaderboard(w_p_min , accuracy):
@@ -120,21 +123,21 @@ def update_leaderboard(w_p_min , accuracy):
     while len(name) > 16: name = input("Enter your username  (Max 16 characters): ")
 
     if(lines == ""):
-        lines = f"\n{name},{round(w_p_min)},{round(userScore)}"
+        lines = f"{name},{round(w_p_min)},{round(userScore)}"
         text_file.close()
         text_file = open("leaderboard.txt", "w")
         text_file.write(lines)
         text_file.close()
-        return lines,len(lines.split("\n")[-1])
-    
+        return lines,1
+
     minScore = int(lines.split("\n")[-1].split(",")[-1])
-    if minScore >= userScore :
+    if (minScore) >= userScore :
         lines = lines + f"\n{name},{round(w_p_min)},{round(userScore)}"
         text_file.close()
         text_file = open("leaderboard.txt", "w")
         text_file.write(lines)
         text_file.close()
-        return lines,len(lines.split("\n")[-1])
+        return lines,len(lines.split("\n"))
 
 
     for i in range(len(lines.split("\n"))):
@@ -142,11 +145,13 @@ def update_leaderboard(w_p_min , accuracy):
         current_i_score = int(j.split(",")[-1])
         if(userScore > current_i_score ):
             if(changedUserId == 99): changedUserId = i + 1
-            lines = lines.replace(j,f"j\n{name},{round(w_p_min)},{round(userScore)}")
-            # lines = lines.split("\n")[:-1]
+            lines = lines.replace(j,f"{name},{round(w_p_min)},{round(userScore)}\n{j}")
             break
+
+
     text_file.close()
     text_file = open("leaderboard.txt", "w")
+    print(lines , "Kines")
     text_file.write(lines)
     text_file.close()
     return lines , changedUserId
@@ -164,10 +169,11 @@ def print_leaderboard(leaderboard,userI):
     print(f"{"Position": <10}|    {"Name": <20}    |    {"Words Per Minute": <20}    |    {"Accuracy": <20}")
     print(f"--------------------------------------------------------------------------------------------")
     for i in range(len(lines)):
+        if lines[i] == "": continue
         if(userI == i + 1):
             s = f"    {i + 1: 4d}  |    {lines[i].split(",")[0]: <20}    |     {lines[i].split(",")[1]: <20}    |     {(int(lines[i].split(",")[2])-int(lines[i].split(",")[1])): <20} "
-            click.secho(s, color='green')
-            print("-" * ( len(s) -10))
+            click.echo(click.style(s , fg="green"))
+            print("-" * ( len(s) - 10))
             continue
         s = f"    {i + 1: 4d}  |    {lines[i].split(",")[0]: <20}    |     {(lines[i].split(",")[1]): <20}    |     {(int(lines[i].split(",")[2])-int(lines[i].split(",")[1])): <20} "
         print(s)
@@ -188,11 +194,7 @@ def begin():
     click.echo(f"\n \n Type the sentence given in BOLD writing below: \n\n" + (5 * " ") , nl=False )
     click.echo(click.style(click.style(sentence , bold= True)))
     print()
-    # Fake time start to initialize variable and pass it to function
-    start_time = time.time()
-    input_text , correctCount = getInput(sentence , start_time , mode)
-    end_time = time.time()
-    time_taken = end_time - start_time
+    input_text , correctCount , time_taken = getInput(sentence  , mode)
     wpm = calculate_wpm(time_taken, input_text)
     print(f"\nYou took {round(time_taken)} seconds to type the sentence, achieving a speed of \033[92m {round(wpm)} \033[00m WPM.")
     accuracy = ((correctCount)/len(input_text)) * 100
