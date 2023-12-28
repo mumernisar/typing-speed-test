@@ -17,6 +17,7 @@ def generate_random_sentence(mode):
 # and add it to the redIndexes list which is then later used by for loop to print accodingly
 def printStr_Helper(st):
     temp = st
+
     redIndexes = []
     if "^^red^^" in st:
         start = 0
@@ -45,16 +46,19 @@ def getInput(sentence , start_time , mode):
     st = ""
     # Word count showing current iteration of word
     word = 0
+    time_started = False
     # While loop for as long as length of user typed string is less the string to be typed ( Replace is used for removing red colours from string)
     while len(sentence) > (len(st)):
         if finished:  break
         if(mode == "1" and time.time() - start_time >= 60): break
         # Get char gets a character as input
         c = click.getchar()
+        if(not time_started): 
+            start_time = time.time()
+            time_started = True
         # "\x08" is the code for backspace key
         if(c == "\x08" and word != 0):
             # Dont include the last character
-            # rep = repr(st)[:-1]
             lastCharacters = st[-7:]
             # Check if the last characters in the st are from backspace code "^^red^^"
             if(lastCharacters == "^^red^^"):
@@ -66,11 +70,10 @@ def getInput(sentence , start_time , mode):
                 corrects = corrects - 1
             word = word - 1
             click.clear()
-            click.echo(f" \n Type the sentence given in BOLD writing below: \n\n" + (5 * " ") , nl=False )
-            click.echo(click.style(sentence , bold= True))
+            click.echo(f"\n {" " * 80} Time : {round(time.time()-start_time)}\n Type the sentence given in BOLD writing below: \n\n" + (5 * " ") , nl=False )
+            click.echo(click.style(sentence , bold= True) )
             print()
-            printStr_Helper(st)
-
+            printStr_Helper(st )
         # Enter key produced "\r" code
         elif(c == "\r" and corrects > 60):
             finished = True
@@ -80,16 +83,18 @@ def getInput(sentence , start_time , mode):
             withoutFormattingS = st.replace("^^red^^","")
             withoutFormattingS = withoutFormattingS + c
             print()
-            print(withoutFormattingS , "without formating s")
+            
             if(withoutFormattingS[word] != sentence[word]):
-                winsound.Beep(2000,30)
                 st = st + ("^^red^^" + c + "^^red^^")
                 mistakes += 1
+                click.clear()
+                
             else:
                 st = st + c
                 corrects = corrects + 1
+                
             click.clear()
-            click.echo(f" \n Type the sentence given in BOLD writing below: \n\n" + (5 * " ") , nl=False )
+            click.echo(f"\n {" " * 80} Time : {round(time.time()-start_time)}\n Type the sentence given in BOLD writing below: \n\n" + (5 * " ") , nl=False )
             click.echo(click.style(sentence , bold= True))
             print()
             printStr_Helper(st)
@@ -109,7 +114,6 @@ def update_leaderboard(w_p_min , accuracy):
     text_file = open("leaderboard.txt", "r")
     lines = text_file.read()
     userScore = (w_p_min + accuracy)
-    minScore = int(lines.split("\n")[-1].split(",")[-1])
 
     # If last person has better score then dont execute loop
     name = input("Enter your username  (Max 16 characters): ")
@@ -122,7 +126,8 @@ def update_leaderboard(w_p_min , accuracy):
         text_file.write(lines)
         text_file.close()
         return lines,len(lines.split("\n")[-1])
-
+    
+    minScore = int(lines.split("\n")[-1].split(",")[-1])
     if minScore >= userScore :
         lines = lines + f"\n{name},{round(w_p_min)},{round(userScore)}"
         text_file.close()
@@ -180,16 +185,10 @@ def begin():
     while mode != "1" and mode != "2": mode = input("Select mode: \n 1. One minute Rush \n 2. Speed Test \n Choice: ")
     click.clear()
     sentence = generate_random_sentence(mode)
-    click.echo(f" \n Type the sentence given in BOLD writing below: \n\n" + (5 * " ") , nl=False )
+    click.echo(f"\n \n Type the sentence given in BOLD writing below: \n\n" + (5 * " ") , nl=False )
     click.echo(click.style(click.style(sentence , bold= True)))
     print()
-    # While loop to give the user time (n seconds) to get ready for the test
-    remainingTime = 3
-    while remainingTime > 0:
-        print(f" \rBegin in {remainingTime} seconds ⏰" , end="" )
-        time.sleep(1)
-        remainingTime = remainingTime - 1
-        print(f" \rBegin in {remainingTime} seconds ⏰" , end="" )
+    # Fake time start to initialize variable and pass it to function
     start_time = time.time()
     input_text , correctCount = getInput(sentence , start_time , mode)
     end_time = time.time()
