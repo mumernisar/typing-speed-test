@@ -65,7 +65,8 @@ def getInput(sentence , mode):
             start_time = time.time()
             time_started = True
         # "\x08" is the code for backspace key
-        if(c == "\x08" and word != 0 and mode != "1"):
+        if(c == "\x08" and word != 0):
+            print("Running")
             # Dont include the last character
             st = st[:len(st) - 1]
             if (word - 1) in mistakes:
@@ -82,7 +83,7 @@ def getInput(sentence , mode):
 
 
         # Enter key produced "\r" code
-        elif(c == "\r" and corrects > 60):
+        elif(c == "\r" and corrects > 60  and mode != "1"):
             finished = True
 # repr() changes a character to raw form like for (a) it will be ('a') and for any special keys it will be a code with len > 3
 #  hence only alphabets will pass
