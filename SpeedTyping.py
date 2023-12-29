@@ -3,7 +3,6 @@ import time
 # click is an external library used for getting a single character input at a time
 import click
 # Function to generate a random sentence from a file (text.txt)
-
 def generate_random_sentence(mode):
     text_file = open("text.txt", "r")
     lines = text_file.readlines()
@@ -24,14 +23,10 @@ def printStr_Helper(st , start_time , sentence , mistakes):
             # For last element of mistakes list
             click.echo(click.style(sentence[start:i],bg='white'), nl=False)
             click.echo(click.style(sentence[i:i+1] , bg='red'), nl=False)
-
             start = i + 1
-
 
         click.echo(click.style(sentence[mistakes[-1] + 1:len(st)] , bg='white'), nl=False)
         click.echo(click.style(sentence[len(st):] , bold= True) )
-        
-
     else:
             click.echo(click.style(sentence[:len(st.replace("^^red^^",""))],bg='white') , nl=False)
             click.echo(click.style(sentence[len(st.replace("^^red^^","")):] , bold= True) )
