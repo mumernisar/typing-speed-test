@@ -14,33 +14,36 @@ def generate_random_sentence(mode):
 # Function for printing the current string each time a character is entered
 # checks if there were any errors made with if "^^red^^"...then for each(while loop) red found it get the index of middle character
 # and add it to the redIndexes list which is then later used by for loop to print accodingly
-def printStr_Helper(st):
-    temp = st
+def printStr_Helper(st , start_time , sentence , mistakes):
+    click.clear()
+    click.echo(f"\n {" " * 80} Time : {round(time.time()-start_time)}\n Type the sentence given in BOLD writing below: \n\n" + (5 * " ") , nl=False )
+    
+    if len(mistakes) != 0:
+        start = 0
+        for i in mistakes:
+            # For last element of mistakes list
+            click.echo(click.style(sentence[start:i],bg='white'), nl=False)
+            click.echo(click.style(sentence[i:i+1] , bg='red'), nl=False)
 
-    redIndexes = []
-    if "^^red^^" in st:
-        start = 0
-        while "^^red^^" in temp:
-            i = temp.find("^^red^^")
-            redIndexes.append(i + 7 + ( start * 14))
-            temp = temp.replace("^^red^^" ,"", 2)
-            start +=1
-        click.echo("\rGo... : " , nl = False)
-        start = 0
-        for i in redIndexes:
-            click.echo(st[start:i-7], nl=False)
-            click.echo(click.style(st[i:i+1] , bg='red'), nl=False)
-            start = i+1+7
+            start = i + 1
+
+
+        click.echo(click.style(sentence[mistakes[-1] + 1:len(st)] , bg='white'), nl=False)
+        click.echo(click.style(sentence[len(st):] , bold= True) )
+        
 
     else:
-            click.echo("\rGo... : " + st , nl = False)
+            click.echo(click.style(sentence[:len(st.replace("^^red^^",""))],bg='white') , nl=False)
+            click.echo(click.style(sentence[len(st.replace("^^red^^","")):] , bold= True) )
 
+    print()
+    click.echo("\rGo... : " + (st.replace('^^red^^','')) , nl = False)
+    
 def getInput(sentence , mode):
-
     print("\r                           ",end="")
     click.echo("\rGo... : ", nl = False)
     finished = False
-    mistakes = 0
+    mistakes = []
     corrects = 0
     # String initiation for storing characters in after typing of each character (st)
     st = ""
@@ -61,49 +64,35 @@ def getInput(sentence , mode):
         # "\x08" is the code for backspace key
         if(c == "\x08" and word != 0):
             # Dont include the last character
-            lastCharacters = st[-7:]
-            # Check if the last characters in the st are from backspace code "^^red^^"
-            if(lastCharacters == "^^red^^"):
-                charsToExculde = 7 + 7 + 1
-                st = st[:(len(st) - charsToExculde)]
-                mistakes = mistakes - 1
+            st = st[:len(st) - 1]
+            if (word - 1) in mistakes:
+                mistakes.remove(word - 1)
             else:
-                st = st[:len(st) - 1]
                 corrects = corrects - 1
+
             word = word - 1
             click.clear()
-            click.echo(f"\n {" " * 80} Time : {round(time.time()-start_time)}\n Type the sentence given in BOLD writing below: \n\n" + (5 * " ") , nl=False )
-            click.echo(click.style(sentence , bold= True) )
-            print()
-            printStr_Helper(st )
+            printStr_Helper(st  , start_time , sentence , mistakes)
+
         # Enter key produced "\r" code
-        elif(c == "\r" ):
+        elif(c == "\r" and corrects > 60):
             finished = True
 # repr() changes a character to raw form like for (a) it will be ('a') and for any special keys it will be a code with len > 3
 #  hence only alphabets will pass
         if(len(repr(c)) == 3):
-            withoutFormattingS = st.replace("^^red^^","")
-            withoutFormattingS = withoutFormattingS + c
+            wordwithC = st + c
             print()
 
-            if(withoutFormattingS[word] != sentence[word]):
-                st = st + ("^^red^^" + c + "^^red^^")
-                mistakes += 1
-                click.clear()
-
+            if(wordwithC[word] != sentence[word]):
+                st = st +  c 
+                mistakes.append(word)
             else:
                 st = st + c
                 corrects = corrects + 1
-
-            click.clear()
-            click.echo(f"\n {" " * 80} Time : {round(time.time()-start_time)}\n Type the sentence given in BOLD writing below: \n\n" + (5 * " ") , nl=False )
-            click.echo(click.style(sentence , bold= True))
-            print()
-            printStr_Helper(st)
+            printStr_Helper(st  , start_time , sentence , mistakes)
             word = word + 1
 
-    withoutFormattingS = st.replace("^^red^^","")
-    return withoutFormattingS , corrects ,  round(time.time() - start_time )
+    return st , corrects ,  round(time.time() - start_time )
 
 # Function to update leader if user choses to
 def update_leaderboard(w_p_min , accuracy):
@@ -197,7 +186,7 @@ def begin():
     wpm = calculate_wpm(time_taken, input_text)
     print(f"\nYou took {round(time_taken)} seconds to type the sentence, achieving a speed of \033[92m {round(wpm)} \033[00m WPM.")
     accuracy = ((correctCount)/len(input_text)) * 100
-    print(f"Your accuracy is {accuracy: .2f} \n")
+    print(f"Your accuracy is \033[92m {accuracy: .2f} \033[00m \n")
     lb = ""
     if(accuracy > 60):
         while(lb != "1" and lb != "2"): lb = input("Showoff your skill in the leaderboard? \n (1 for Yes) \n (2 for No) \n Choice: ")

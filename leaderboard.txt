@@ -1,3 +1,5 @@
 umernisar,90,190
 umernisar2,54,154
+UmerNisar,47,146
+umernisarBankai,44,144
 umernisar2,40,140
