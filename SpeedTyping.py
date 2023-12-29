@@ -23,7 +23,7 @@ def printStr_Helper(st , start_time , sentence , mistakes , type):
         x = f'Progress:  [{"#" * round(len(st)/4)}🐸{"_" * round((len(sentence) - len(st)) / 4 )}]  Time: { round(time.time()-start_time)} '
         click.echo(x.center(120))
         
-    click.echo(f"\n Type the sentence given in BOLD writing below: \n\n" + (5 * " ") , nl=False )
+    click.echo(f"\n Type the sentence given below: \n\n" + (5 * " ") , nl=False )
     
     if len(mistakes) != 0:
         start = 0
@@ -89,9 +89,9 @@ def getInput(sentence , mode):
 #  hence only alphabets will pass
         if(len(repr(c)) == 3):
             wordwithC = st + c
-            print()
 
             if(wordwithC[word] != sentence[word]):
+                if wordwithC[word - 1] != sentence[word -1]: continue
                 st = st +  c 
                 mistakes.append(word)
             else:
