@@ -13,9 +13,17 @@ def generate_random_sentence(mode):
 # Function for printing the current string each time a character is entered
 # checks if there were any errors made with if "^^red^^"...then for each(while loop) red found it get the index of middle character
 # and add it to the redIndexes list which is then later used by for loop to print accodingly
-def printStr_Helper(st , start_time , sentence , mistakes):
+def printStr_Helper(st , start_time , sentence , mistakes , type):
     click.clear()
-    click.echo(f"\n {" " * 80} Time : {round(time.time()-start_time)}\n Type the sentence given in BOLD writing below: \n\n" + (5 * " ") , nl=False )
+    print()
+    if(type == 'rush'):
+        x= f"{"Time: "} [{"#" *round( 1.6 * round(time.time()-start_time))}🚓{"_" * round(1.6 *  (60 - round(time.time()-start_time)))}]"
+        click.echo(x.center(120))
+    else:
+        x = f"Progress:  [{"#" * round(len(st)/4)}🚓{"_" * round((len(sentence) - len(st)) / 4 )}]  Time: { round(time.time()-start_time)} "
+        click.echo(x.center(120))
+        
+    click.echo(f"\n Type the sentence given in BOLD writing below: \n\n" + (5 * " ") , nl=False )
     
     if len(mistakes) != 0:
         start = 0
@@ -67,7 +75,11 @@ def getInput(sentence , mode):
 
             word = word - 1
             click.clear()
-            printStr_Helper(st  , start_time , sentence , mistakes)
+            if (mode == "1"):
+                printStr_Helper(st  , start_time , sentence , mistakes , 'rush')
+            else:
+                printStr_Helper(st  , start_time , sentence , mistakes,'test')
+
 
         # Enter key produced "\r" code
         elif(c == "\r" and corrects > 60):
@@ -84,7 +96,11 @@ def getInput(sentence , mode):
             else:
                 st = st + c
                 corrects = corrects + 1
-            printStr_Helper(st  , start_time , sentence , mistakes)
+            if (mode == "1"):
+                printStr_Helper(st  , start_time , sentence , mistakes , 'rush')
+            else:
+                printStr_Helper(st  , start_time , sentence , mistakes,'test')
+
             word = word + 1
 
     return st , corrects ,  round(time.time() - start_time )
