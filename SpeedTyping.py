@@ -20,7 +20,7 @@ def printStr_Helper(st , start_time , sentence , mistakes , type):
         x= f"{"Time: "} [{"#" *round( 1.6 * round(time.time()-start_time))}🐸{"_" * round(1.6 *  (60 - round(time.time()-start_time)))}]"
         click.echo(x.center(120))
     else:
-        x = f"Progress:  [{"#" * round(len(st)/4)}🚓{"_" * round((len(sentence) - len(st)) / 4 )}]  Time: { round(time.time()-start_time)} "
+        x = f"Progress:  [{"#" * round(len(st)/4)}🐸{"_" * round((len(sentence) - len(st)) / 4 )}]  Time: { round(time.time()-start_time)} "
         click.echo(x.center(120))
         
     click.echo(f"\n Type the sentence given in BOLD writing below: \n\n" + (5 * " ") , nl=False )
@@ -29,14 +29,14 @@ def printStr_Helper(st , start_time , sentence , mistakes , type):
         start = 0
         for i in mistakes:
             # For last element of mistakes list
-            click.echo(click.style(sentence[start:i],bg='white'), nl=False)
+            click.echo(click.style(sentence[start:i],bg='white' , fg='black'), nl=False)
             click.echo(click.style(sentence[i:i+1] , bg='red'), nl=False)
             start = i + 1
 
-        click.echo(click.style(sentence[mistakes[-1] + 1:len(st)] , bg='white'), nl=False)
+        click.echo(click.style(sentence[mistakes[-1] + 1:len(st)] , bg='white' ,  fg='black'), nl=False)
         click.echo(click.style(sentence[len(st):] , bold= True) )
     else:
-            click.echo(click.style(sentence[:len(st.replace("^^red^^",""))],bg='white') , nl=False)
+            click.echo(click.style(sentence[:len(st.replace("^^red^^",""))],bg='white' , fg='black') , nl=False)
             click.echo(click.style(sentence[len(st.replace("^^red^^","")):] , bold= True) )
 
     print()

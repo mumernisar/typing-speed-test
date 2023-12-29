@@ -1,6 +1,8 @@
 umernisar,90,190
 TheRealOne,57,156
 umernisar2,54,154
+UmerNisar00,46,146
 UmerNisar,47,146
+UmerNisar,45,145
 umernisarBankai,44,144
 umernisar2,40,140
