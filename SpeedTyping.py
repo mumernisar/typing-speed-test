@@ -17,10 +17,10 @@ def printStr_Helper(st , start_time , sentence , mistakes , type):
     click.clear()
     print()
     if(type == 'rush'):
-        x= f"{"Time: "} [{"#" *round( 1.6 * round(time.time()-start_time))}🐸{"_" * round(1.6 *  (60 - round(time.time()-start_time)))}]"
+        x= f'{"Time: "} [{"#" *round( 1.6 * round(time.time()-start_time))}🐸{"_" * round(1.6 *  (60 - round(time.time()-start_time)))}]'
         click.echo(x.center(120))
     else:
-        x = f"Progress:  [{"#" * round(len(st)/4)}🐸{"_" * round((len(sentence) - len(st)) / 4 )}]  Time: { round(time.time()-start_time)} "
+        x = f'Progress:  [{"#" * round(len(st)/4)}🐸{"_" * round((len(sentence) - len(st)) / 4 )}]  Time: { round(time.time()-start_time)} '
         click.echo(x.center(120))
         
     click.echo(f"\n Type the sentence given in BOLD writing below: \n\n" + (5 * " ") , nl=False )
@@ -65,7 +65,7 @@ def getInput(sentence , mode):
             start_time = time.time()
             time_started = True
         # "\x08" is the code for backspace key
-        if(c == "\x08" and word != 0):
+        if(c == "\x08" and word != 0 and mode != "1"):
             # Dont include the last character
             st = st[:len(st) - 1]
             if (word - 1) in mistakes:
@@ -165,16 +165,16 @@ def calculate_wpm(time_taken, sentence):
 # Function to print leaderboard in a tabular form
 def print_leaderboard(leaderboard,userI):
     lines = leaderboard.split("\n")
-    print(f"{"Position": <10}|    {"Name": <20}    |    {"Words Per Minute": <20}    |    {"Accuracy": <20}")
-    print(f"--------------------------------------------------------------------------------------------")
+    print(f'{"Position": <10}|    {"Name": <20}    |    {"Words Per Minute": <20}    |    {"Accuracy": <20}')
+    print(f'--------------------------------------------------------------------------------------------')
     for i in range(len(lines)):
         if lines[i] == "": continue
         if(userI == i + 1):
-            s = f"    {i + 1: 4d}  |    {lines[i].split(",")[0]: <20}    |     {lines[i].split(",")[1]: <20}    |     {(int(lines[i].split(",")[2])-int(lines[i].split(",")[1])): <20} "
+            s = f'    {i + 1: 4d}  |    {lines[i].split(",")[0]: <20}    |     {lines[i].split(",")[1]: <20}    |     {(int(lines[i].split(",")[2])-int(lines[i].split(",")[1])): <20} '
             click.echo(click.style(s , fg="green"))
             print("-" * ( len(s) - 10))
             continue
-        s = f"    {i + 1: 4d}  |    {lines[i].split(",")[0]: <20}    |     {(lines[i].split(",")[1]): <20}    |     {(int(lines[i].split(",")[2])-int(lines[i].split(",")[1])): <20} "
+        s = f'    {i + 1: 4d}  |    {lines[i].split(",")[0]: <20}    |     {(lines[i].split(",")[1]): <20}    |     {(int(lines[i].split(",")[2])-int(lines[i].split(",")[1])): <20} '
         print(s)
         print("-" * ( len(s) - 10))
 
