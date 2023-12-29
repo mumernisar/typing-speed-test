@@ -17,7 +17,7 @@ def printStr_Helper(st , start_time , sentence , mistakes , type):
     click.clear()
     print()
     if(type == 'rush'):
-        x= f"{"Time: "} [{"#" *round( 1.6 * round(time.time()-start_time))}🚓{"_" * round(1.6 *  (60 - round(time.time()-start_time)))}]"
+        x= f"{"Time: "} [{"#" *round( 1.6 * round(time.time()-start_time))}🐸{"_" * round(1.6 *  (60 - round(time.time()-start_time)))}]"
         click.echo(x.center(120))
     else:
         x = f"Progress:  [{"#" * round(len(st)/4)}🚓{"_" * round((len(sentence) - len(st)) / 4 )}]  Time: { round(time.time()-start_time)} "
