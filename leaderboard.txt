@@ -1,9 +1,7 @@
-umernisar,90,190
-TheRealOne,57,156
-umernisar2,54,154
-UmerNisar00,46,146
-UmerNisar,47,146
-UmerNisar,45,145
-umernisarBankai,44,144
-UmerNisar,43,143
-umernisar2,40,140
+umernisar,138,182
+u,65,165
+umernisar99,20,120
+& C:/Users/umern/AppData/Local/Programs/Python/Python312/python.exe c:/Users/umern/OneDrive/Desktop/terminal/SpeedTyping.py,2,42
+umernisar0,4,16
+ C:/Users/umern/AppData/Local/Programs/Python/Python312/python.exe c:/Users/umern/OneDrive/Desktop/terminal/SpeedTyping.py,0,0
+,0,0

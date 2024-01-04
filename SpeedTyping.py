@@ -2,6 +2,8 @@ import random
 import time
 # click is an external library used for getting a single character input at a time
 import click
+# playsound is a v small library soleley used for playing an audio
+from playsound import playsound
 # Function to generate a random sentence from a file (text.txt)
 def generate_random_sentence(mode):
     text_file = open("text.txt", "r")
@@ -11,36 +13,39 @@ def generate_random_sentence(mode):
     return random.choice(lines)
 
 # Function for printing the current string each time a character is entered
-# checks if there were any errors made with if "^^red^^"...then for each(while loop) red found it get the index of middle character
-# and add it to the redIndexes list which is then later used by for loop to print accodingly
-def printStr_Helper(st , start_time , sentence , mistakes , type):
+def printStr_Helper(st , start_time , sentence , mistakes , mode):
     click.clear()
     print()
-    if(type == 'rush'):
-        x= f'{"Time: "} [{"#" *round( 1.6 * round(time.time()-start_time))}🐸{"_" * round(1.6 *  (60 - round(time.time()-start_time)))}]'
+    # A little custom progressbar that either works on time increment or progress progression
+    if(mode == '1'):
+        x= f'{"Time: "} [{"#" *round( round(time.time()-start_time))}🐸{"_" * round(  (60 - round(time.time()-start_time)))}]'
         click.echo(x.center(120))
     else:
-        x = f'Progress:  [{"#" * round(len(st)/4)}🐸{"_" * round((len(sentence) - len(st)) / 4 )}]  Time: { round(time.time()-start_time)} '
+        x = f'Progress:  [{"#" * round(len(st)/5)}🐸{"_" * round((len(sentence) - len(st)) / 5 )}]  Time: { round(time.time()-start_time)} '
         click.echo(x.center(120))
         
-    click.echo(f"\n Type the sentence given below: \n\n" + (5 * " ") , nl=False )
-    
+    print()
+    # In case there are any mistakes indexes stored in the mistakes list (len not equal zero)
     if len(mistakes) != 0:
         start = 0
         for i in mistakes:
-            # For last element of mistakes list
-            click.echo(click.style(sentence[start:i],bg='white' , fg='black'), nl=False)
+            # Loop will print upto the last mistake
+            click.echo(click.style( sentence[start:i] ,bg='white' , fg='black'), nl=False)
             click.echo(click.style(sentence[i:i+1] , bg='red'), nl=False)
             start = i + 1
 
+# This will print the remainaing "TYPED" sentence after the last mastake
         click.echo(click.style(sentence[mistakes[-1] + 1:len(st)] , bg='white' ,  fg='black'), nl=False)
-        click.echo(click.style(sentence[len(st):] , bold= True) )
+
     else:
-            click.echo(click.style(sentence[:len(st.replace("^^red^^",""))],bg='white' , fg='black') , nl=False)
-            click.echo(click.style(sentence[len(st.replace("^^red^^","")):] , bold= True) )
+# In case no mistake was made
+            # This will print the  "TYPED" sentence 
+            click.echo(click.style(sentence[:len(st)],bg='white' , fg='black') , nl=False)
+            #  This print the remaining sentece with no background color
+            click.echo(click.style(sentence[len(st):] , bold= True) )
 
     print()
-    click.echo("\rGo... : " + (st.replace('^^red^^','')) , nl = False)
+    click.echo("\rGo... : " + (st) , nl = False)
     
 def getInput(sentence , mode):
     print("\r                           ",end="")
@@ -48,7 +53,7 @@ def getInput(sentence , mode):
     finished = False
     mistakes = []
     corrects = 0
-    # String initiation for storing characters in after typing of each character (st)
+    # String initiation for storing characters in(st) after typing of each character of sentence 
     st = ""
     # Word count showing current iteration of word
     word = 0
@@ -56,7 +61,7 @@ def getInput(sentence , mode):
     # Fake time start to initialize variable and pass first loop iteration
     start_time = time.time()
     # While loop for as long as length of user typed string is less the string to be typed ( Replace is used for removing red colours from string)
-    while len(sentence) > (len(st)):
+    while len(sentence.replace("\n" , "")) > (len(st)):
         if finished:  break
         if(mode == "1" and time.time() - start_time >= 60): break
         # Get char gets a character as input
@@ -64,9 +69,9 @@ def getInput(sentence , mode):
         if(not time_started):
             start_time = time.time()
             time_started = True
+        
         # "\x08" is the code for backspace key
         if(c == "\x08" and word != 0):
-            print("Running")
             # Dont include the last character
             st = st[:len(st) - 1]
             if (word - 1) in mistakes:
@@ -76,31 +81,27 @@ def getInput(sentence , mode):
 
             word = word - 1
             click.clear()
-            if (mode == "1"):
-                printStr_Helper(st  , start_time , sentence , mistakes , 'rush')
-            else:
-                printStr_Helper(st  , start_time , sentence , mistakes,'test')
+            printStr_Helper(st  , start_time , sentence , mistakes , mode)
 
 
         # Enter key produced "\r" code
-        elif(c == "\r" and corrects > 60  and mode != "1"):
+        elif(c == "\r"):
+        # elif(c == "\r" and corrects > 60 and mode == "2"):
             finished = True
+
 # repr() changes a character to raw form like for (a) it will be ('a') and for any special keys it will be a code with len > 3
 #  hence only alphabets will pass
         if(len(repr(c)) == 3):
-            wordwithC = st + c
-
-            if(wordwithC[word] != sentence[word]):
-                if wordwithC[word - 1] != sentence[word -1]: continue
+            if(c != sentence[word]):
+                if len(st) != 0 and st[-1] != sentence[word -1]:
+                    playsound("./error.mp3",False)
+                    continue
                 st = st +  c 
                 mistakes.append(word)
             else:
                 st = st + c
                 corrects = corrects + 1
-            if (mode == "1"):
-                printStr_Helper(st  , start_time , sentence , mistakes , 'rush')
-            else:
-                printStr_Helper(st  , start_time , sentence , mistakes,'test')
+            printStr_Helper(st  , start_time , sentence , mistakes , mode)
 
             word = word + 1
 
@@ -108,51 +109,47 @@ def getInput(sentence , mode):
 
 # Function to update leader if user choses to
 def update_leaderboard(w_p_min , accuracy):
-    # Function will check if the current variable score is higher score than current iteration score  if so ...,
-    # it will replace them with variable score and put the iteration score in variable for the next cycle
+    # Function will check if the current variable score is higher score than current iteration score  if so then insert the current user
+    # at that point
 
-# 99 is taken as an impossible number if this number is returned from function as is..! function will deduce the user did not make
-# to leaderboard
-    changedUserId = 99
+    changedUserId = False
     text_file = open("leaderboard.txt", "r")
-    lines = text_file.read()
+    lines = text_file.readlines()
     userScore = (w_p_min + accuracy)
 
-    # If last person has better score then dont execute loop
     name = input("Enter your username  (Max 16 characters): ")
-    while len(name) > 16: name = input("Enter your username  (Max 16 characters): ")
-
-    if(lines == ""):
-        lines = f"{name},{round(w_p_min)},{round(userScore)}"
+    while len(name) > 16 and len(name) == 0: name = input("Enter your username  (Max 16 characters): ")
+# In case of an empty file
+    if(len(lines) == 0):
         text_file.close()
+        lines = [f"{name},{round(w_p_min)},{round(userScore)}"]
         text_file = open("leaderboard.txt", "w")
-        text_file.write(lines)
+        text_file.writelines(lines)
         text_file.close()
-        return lines,1
-
-    minScore = int(lines.split("\n")[-1].split(",")[-1])
+        return lines,0
+    
+# If last person has better score then dont execute loop
+    minScore = int(lines[-1].split(",")[-1])
     if (minScore) >= userScore :
-        lines = lines + f"\n{name},{round(w_p_min)},{round(userScore)}"
+        print("Last score")
         text_file.close()
+        lines.append( f"\n{name},{round(w_p_min)},{round(userScore)}")
+        print(lines)
         text_file = open("leaderboard.txt", "w")
-        text_file.write(lines)
+        text_file.writelines(lines)
         text_file.close()
-        return lines,len(lines.split("\n"))
-
-
-    for i in range(len(lines.split("\n"))):
-        j = lines.split("\n")[i]
-        current_i_score = int(j.split(",")[-1])
+        return lines,len(lines) - 1
+# In case the user lies in between
+    for index,el in enumerate(lines):
+        current_i_score = int(el.split(",")[-1])
         if(userScore > current_i_score ):
-            if(changedUserId == 99): changedUserId = i + 1
-            lines = lines.replace(j,f"{name},{round(w_p_min)},{round(userScore)}\n{j}")
+            changedUserId = index
+            lines.insert(index , f"{name},{round(w_p_min)},{round(userScore)}\n")
             break
-
-
     text_file.close()
     text_file = open("leaderboard.txt", "w")
-    print(lines , "Kines")
-    text_file.write(lines)
+    print("lines" , lines)
+    text_file.writelines(lines)
     text_file.close()
     return lines , changedUserId
 
@@ -165,51 +162,67 @@ def calculate_wpm(time_taken, sentence):
 
 # Function to print leaderboard in a tabular form
 def print_leaderboard(leaderboard,userI):
-    lines = leaderboard.split("\n")
+    lines = leaderboard
     print(f'{"Position": <10}|    {"Name": <20}    |    {"Words Per Minute": <20}    |    {"Accuracy": <20}')
     print(f'--------------------------------------------------------------------------------------------')
-    for i in range(len(lines)):
-        if lines[i] == "": continue
-        if(userI == i + 1):
-            s = f'    {i + 1: 4d}  |    {lines[i].split(",")[0]: <20}    |     {lines[i].split(",")[1]: <20}    |     {(int(lines[i].split(",")[2])-int(lines[i].split(",")[1])): <20} '
+    for index,el in enumerate(lines):
+        el = el.replace("\n","")
+        if el == "": continue
+        if(userI == index):
+            s = f'    {index + 1: 4d}  |    {el.split(",")[0]: <20}    |     {el.split(",")[1]: <20}    |     {f"{(int(el.split(",")[2])-int(el.split(",")[1]))}": <20} '
             click.echo(click.style(s , fg="green"))
             print("-" * ( len(s) - 10))
             continue
-        s = f'    {i + 1: 4d}  |    {lines[i].split(",")[0]: <20}    |     {(lines[i].split(",")[1]): <20}    |     {(int(lines[i].split(",")[2])-int(lines[i].split(",")[1])): <20} '
+        s = f'    {index + 1: 4d}  |    {el.split(",")[0]: <20}    |     {(el.split(",")[1]): <20}    |     {f"{(int(el.split(",")[2])-int(el.split(",")[1]))}": <20} '
         print(s)
         print("-" * ( len(s) - 10))
 
 # Main Function Of The Program
 def begin():
-    print(" " * 10 , "________                 _________   ________           _____ ")
-    print(" " * 10 , "__  ___/_______________________  /   ___  __/_____________  /_")
-    print(" " * 10 , "_____ \\___  __ \\  _ \\  _ \\  __  /    __  /  _  _ \\_  ___/  __/")
-    print(" " * 10 , "____/ /__  /_/ /  __/  __/ /_/ /     _  /   /  __/(__  )/ /_  ")
-    print(" " * 10 , "/____/ _  .___/\\___/\\___/\\__,_/      /_/    \\___//____/ \\__/  ")
-    print(" " * 10 , "        /_/                                                   ")
-    mode = input("Select mode: \n 1. One minute Rush \n 2. Speed Test \n Choice: ")
-    while mode != "1" and mode != "2": mode = input("Select mode: \n 1. One minute Rush \n 2. Speed Test \n Choice: ")
+    click.echo("Select mode: \n 1. One minute Rush \n 2. Speed Test \n Choice[1/2]: ",nl=False)
+    mode = click.getchar(echo=True)
+    while mode != "1" and mode != "2":
+        print("\r \n Choice[1/2]: ",end="")
+        mode = click.getchar(echo=True)
     click.clear()
     sentence = generate_random_sentence(mode)
-    click.echo(f"\n \n Type the sentence given in BOLD writing below: \n\n" + (5 * " ") , nl=False )
-    click.echo(click.style(click.style(sentence , bold= True)))
+    click.echo("Begin typing when you are ready ".center(120))
+    print()
+    click.echo( click.style(sentence , bold= True) )
     print()
     input_text , correctCount , time_taken = getInput(sentence  , mode)
+    click.clear()
     wpm = calculate_wpm(time_taken, input_text)
-    print(f"\nYou took {round(time_taken)} seconds to type the sentence, achieving a speed of \033[92m {round(wpm)} \033[00m WPM.")
-    accuracy = ((correctCount)/len(input_text)) * 100
-    print(f"Your accuracy is \033[92m {accuracy: .2f} \033[00m \n")
+    click.echo(f"\nYou took {round(time_taken)} seconds to type the sentence, achieving a speed of " + click.style(round(wpm) , fg='green') + " WPM.")
+    # Formula for accuracy
+    accuracy = round(((correctCount)/len(input_text)) * 100)
+    print(f"Your accuracy is " + click.style(f"{accuracy} %", fg='green'))
     lb = ""
+    # show leaderboard only in case accuracy was higher than 60 percenst
     if(accuracy > 60):
-        while(lb != "1" and lb != "2"): lb = input("Showoff your skill in the leaderboard? \n (1 for Yes) \n (2 for No) \n Choice: ")
-    if(lb  == "1"):
+        click.echo("Showoff your skill in the leaderboard? \n (1 for Yes) \n (2 for No) :" , nl=False)
+        while(lb != "1" and lb != "2"):
+            print("\r \n Choice[1/2]: ",end="")
+            lb = click.getchar(echo=True)
+        print()
+    if(lb  != "2"):
         updated , userI = update_leaderboard(wpm , round(accuracy))
+        print_leaderboard(updated , userI )
 
-        if( userI == 99 ): click.secho("Alas...! You did not make it to the leaderboard this time.!!" , 'red')
-        else: print_leaderboard(updated , userI )
-
-    take_again = input("Try again ?? : [y/n]")
-    if(take_again == "y" ): begin()
+    click.echo("Try again ??[y/] : " , nl=False)
+    take_again = click.getchar(echo=True)
+    if(take_again == "y" ): 
+        click.clear()
+        begin()
     else:
         print("Sayonara!")
+
+print(" " * 10 , "________                 _________   ________           _____ ")
+print(" " * 10 , "__  ___/_______________________  /   ___  __/_____________  /_")
+print(" " * 10 , "_____ \\___  __ \\  _ \\  _ \\  __  /    __  /  _  _ \\_  ___/  __/")
+print(" " * 10 , "____/ /__  /_/ /  __/  __/ /_/ /     _  /   /  __/(__  )/ /_  ")
+print(" " * 10 , "/____/ _  .___/\\___/\\___/\\__,_/      /_/    \\___//____/ \\__/  ")
+print(" " * 10 , "        /_/                                                   ")
+
 begin()
+
