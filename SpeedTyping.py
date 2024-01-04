@@ -35,7 +35,11 @@ def printStr_Helper(st , start_time , sentence , mistakes , mode):
             start = i + 1
 
 # This will print the remainaing "TYPED" sentence after the last mastake
+            
         click.echo(click.style(sentence[mistakes[-1] + 1:len(st)] , bg='white' ,  fg='black'), nl=False)
+        click.echo(click.style(sentence[len(st):] , bold= True) )
+
+
 
     else:
 # In case no mistake was made
@@ -215,7 +219,7 @@ def begin():
         click.clear()
         begin()
     else:
-        print("Sayonara!")
+        print("\nSayonara!")
 
 print(" " * 10 , "________                 _________   ________           _____ ")
 print(" " * 10 , "__  ___/_______________________  /   ___  __/_____________  /_")
