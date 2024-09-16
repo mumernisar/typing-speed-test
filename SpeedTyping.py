@@ -6,6 +6,14 @@ import click
 from playsound import playsound
 
 
+# Function to generate a random sentence from a file (text.txt) /// once upon a time
+
+def generate_random_sentence(mode):
+    text_file = open("text.txt", "r")
+    lines = text_file.readlines()
+    if mode == '1':
+        return random.choice(lines).replace("\n" , "") + random.choice(lines)
+    return random.choice(lines)
 
 
 # Function for printing the current string each time a character is entered
