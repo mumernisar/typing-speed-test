@@ -4,6 +4,8 @@ import time
 import click
 # playsound is a v small library soleley used for playing an audio
 from playsound import playsound
+
+
 # Function to generate a random sentence from a file (text.txt)
 def generate_random_sentence(mode):
     text_file = open("text.txt", "r")
@@ -11,6 +13,7 @@ def generate_random_sentence(mode):
     if mode == '1':
         return random.choice(lines).replace("\n" , "") + random.choice(lines)
     return random.choice(lines)
+
 
 # Function for printing the current string each time a character is entered
 def printStr_Helper(st , start_time , sentence , mistakes , mode):
