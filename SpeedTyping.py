@@ -5,8 +5,6 @@ import click
 # playsound is a v small library soleley used for playing an audio
 from playsound import playsound
 # Function to generate a random sentence from a file (text.txt)
-def get_name(name):
-    return "my name is asad"
 
 def generate_random_sentence(mode):
     text_file = open("text.txt", "r")
